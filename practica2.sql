@@ -1,4 +1,4 @@
--- comentario
+-- Creacion de tablas
 
 CREATE TABLE tematica(
 	id INTEGER UNIQUE NOT NULL,
@@ -60,3 +60,17 @@ CREATE TABLE contiene(
         REFERENCES color(id)
         ON UPDATE CASCADE
 );
+
+-- Consultas
+
+-- 1
+
+-- 2
+
+-- 3
+
+-- 4
+
+-- 5
+
+-- 6
