@@ -67,10 +67,71 @@ CREATE TABLE contiene(
 
 -- 2
 
+select *
+from `set`
+where `año` > 2000 and tematica is null;
+
 -- 3
 
 -- 4
 
+select nombre
+from color
+where color.id not in(select color
+					  from contiene);
+
 -- 5
 
 -- 6
+
+select `set`.nombre, `set`.`año`
+from `set` join tematica on `set`.tematica = tematica.id
+where tematica.nombre like "r%"
+order by `set`.nombre;
+
+-- 7
+
+-- 8
+
+select color.nombre
+from contiene natural join `set` join color on contiene.color = color.id
+where num_set in (select num_set
+				  from contiene
+				  group by num_set
+				  having sum(cantidad) > 4)
+and tematica in (select id
+				 from tematica
+				 where nombre like "Jurassic World"
+				 or nombre like "The Hobbit")
+group by color.nombre;
+
+-- 9
+
+-- 10
+
+select num_set, `set`.nombre, count(distinct num_pieza)
+from contiene natural join `set`
+group by num_set, `set`.nombre
+having count(distinct num_pieza) >= all(select count(distinct num_pieza)
+									   from contiene
+									   group by num_set);
+                                       
+-- 11
+
+-- 12
+
+select num_pieza, pieza.nombre, count(distinct color)
+from contiene natural join pieza
+group by num_pieza, pieza.nombre
+having count(distinct color) >= 2;
+
+-- 13
+
+-- 14
+
+select num_set, num_pieza, `set`.nombre, count(*)
+from contiene natural join `set` 
+group by num_set, num_pieza, `set`.nombre
+having count(*) > 1;
+
+-- 15
