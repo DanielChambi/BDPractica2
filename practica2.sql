@@ -64,7 +64,10 @@ CREATE TABLE contiene(
 -- Consultas
 
 -- 1
-
+select count(*)
+from pieza
+where categoria = '1';
+-- TODAS LAS CATEGORÍAS
 -- 2
 
 select *
@@ -72,7 +75,10 @@ from `set`
 where `año` > 2000 and tematica is null;
 
 -- 3
-
+select nombre, cantidad
+from `set`, contiene
+where `set`.num_set = contiene.num_set
+order by cantidad;
 -- 4
 
 select nombre
@@ -81,7 +87,9 @@ where color.id not in(select color
 					  from contiene);
 
 -- 5
-
+select color.nombre
+from color join contiene on color.id = contiene.color join `set` on contiene.num_set= `set`.num_set
+where año = 2016 and año not in (2017);
 -- 6
 
 select `set`.nombre, `set`.`año`
@@ -90,7 +98,12 @@ where tematica.nombre like "r%"
 order by `set`.nombre;
 
 -- 7
-
+select distinct categoria.nombre
+from categoria join pieza on categoria.id = pieza.categoria join contiene on pieza.num_pieza = contiene.num_pieza 
+join `set` on contiene.num_pieza = `set`.num_set join color on contiene.color = color.id
+where año between 2001 and 2003 and color.id not in ( select nombre
+														  from color 
+														  where nombre ='Red');
 -- 8
 
 select color.nombre
@@ -106,6 +119,11 @@ and tematica in (select id
 group by color.nombre;
 
 -- 9
+select distinct tematica.nombre
+from tematica join `set` on tematica.id = `set`.tematica join contiene on `set`.num_set=contiene.num_set
+where contiene.color = any( select id
+							from color
+                            where es_transparente = 't');
 
 -- 10
 
@@ -117,7 +135,11 @@ having count(distinct num_pieza) >= all(select count(distinct num_pieza)
 									   group by num_set);
                                        
 -- 11
-
+select nombre 
+from pieza join contiene on pieza.num_pieza = contiene.num_pieza
+where color = any (select color.id
+					from color 
+                    where nombre like '%Green%' and es_transparente = 't');
 -- 12
 
 select num_pieza, pieza.nombre, count(distinct color)
@@ -126,6 +148,12 @@ group by num_pieza, pieza.nombre
 having count(distinct color) >= 2;
 
 -- 13
+select distinct categoria.nombre
+from categoria join pieza on categoria.id=pieza.categoria
+join contiene on pieza.num_pieza=contiene.num_pieza
+join `set` on contiene.num_set=`set`.num_set
+where año =  (select max(año)
+					from `set` );
 
 -- 14
 
@@ -135,3 +163,10 @@ group by num_set, num_pieza, `set`.nombre
 having count(*) > 1;
 
 -- 15
+select color.rgb, categoria.nombre, tematica.nombre, contiene.cantidad
+from color join contiene on color.id=contiene.color
+join `set` on contiene.num_set=`set`.num_set join tematica on `set`.tematica=tematica.id
+join pieza on contiene.num_pieza=pieza.num_pieza join  categoria on pieza.categoria=categoria.id
+where cantidad = (select max(cantidad) from contiene)
+or cantidad = (select min(cantidad) from contiene)
+order by cantidad;
