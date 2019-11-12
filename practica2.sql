@@ -135,11 +135,12 @@ having count(distinct num_pieza) >= all(select count(distinct num_pieza)
 									   group by num_set);
                                        
 -- 11
-select nombre 
+select nombre
 from pieza join contiene on pieza.num_pieza = contiene.num_pieza
 where color = any (select color.id
 					from color 
                     where nombre like '%Green%' and es_transparente = 't');
+
 -- 12
 
 select num_pieza, pieza.nombre, count(distinct color)
@@ -152,7 +153,7 @@ select distinct categoria.nombre
 from categoria join pieza on categoria.id=pieza.categoria
 join contiene on pieza.num_pieza=contiene.num_pieza
 join `set` on contiene.num_set=`set`.num_set
-where año =  (select max(año)
+where `año` =  (select max(`año`)
 					from `set` );
 
 -- 14
@@ -163,10 +164,36 @@ group by num_set, num_pieza, `set`.nombre
 having count(*) > 1;
 
 -- 15
-select color.rgb, categoria.nombre, tematica.nombre, contiene.cantidad
+select color.rgb, categoria.nombre categoria, tematica.nombre tematica
 from color join contiene on color.id=contiene.color
 join `set` on contiene.num_set=`set`.num_set join tematica on `set`.tematica=tematica.id
 join pieza on contiene.num_pieza=pieza.num_pieza join  categoria on pieza.categoria=categoria.id
-where cantidad = (select max(cantidad) from contiene)
-or cantidad = (select min(cantidad) from contiene)
-order by cantidad;
+where `set`.num_set in (select num_set
+						from contiene
+						group by num_set
+						having sum(cantidad) >= all(select sum(cantidad)
+													from contiene
+													group by num_set)
+						or sum(cantidad) <= all(select sum(cantidad)
+												from contiene
+												group by num_set));
+
+-- Procedimientos y funciones
+
+-- 1
+
+
+-- 2
+
+delimiter &&
+create procedure NumPiezasEnSet(in nombre_set varchar(250))
+begin
+	select num_set, nombre, sum(cantidad) cantidad_piezas, count(distinct color) colores_distintos
+    from `set` natural join contiene
+    where `set`.nombre = nombre_set
+    group by `set`.nombre, num_set;
+end&&
+delimiter ;
+
+-- 3
+
