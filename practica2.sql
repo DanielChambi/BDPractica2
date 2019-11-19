@@ -52,7 +52,8 @@ CREATE TABLE contiene(
     CONSTRAINT
 		FOREIGN KEY(num_pieza)
         REFERENCES pieza(num_pieza)
-        ON UPDATE CASCADE,
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
         FOREIGN KEY(num_set)
         REFERENCES `set`(num_set)
         ON UPDATE CASCADE,
@@ -60,6 +61,8 @@ CREATE TABLE contiene(
         REFERENCES color(id)
         ON UPDATE CASCADE
 );
+
+drop table contiene;
 
 -- Consultas
 
@@ -164,7 +167,7 @@ group by num_set, num_pieza, `set`.nombre
 having count(*) > 1;
 
 -- 15
-select color.rgb, categoria.nombre categoria, tematica.nombre tematica, `set`.nombre
+select color.rgb, categoria.nombre categoria, tematica.nombre tematica
 from color join contiene on color.id=contiene.color
 join `set` on contiene.num_set=`set`.num_set join tematica on `set`.tematica=tematica.id
 join pieza on contiene.num_pieza=pieza.num_pieza join  categoria on pieza.categoria=categoria.id
@@ -217,4 +220,39 @@ end&&
 delimiter ;
 
 -- 3
+
+-- Triggers
+
+-- 1
+
+-- 2
+CREATE TABLE bajas(
+	num_pieza INTEGER UNIQUE NOT NULL,
+    colores INTEGER,
+    sets INTEGER,
+    PRIMARY KEY(num_pieza)
+);
+
+set @sets = 0;
+
+select count(distinct num_set), count(distinct color)
+from contiene
+where num_pieza = 3
+group by(num_pieza);
+
+
+
+delimiter &&
+create trigger dlt_pieza
+before delete on pieza
+for each row
+begin
+	
+
+end&&
+
+delimiter ;
+
+
+delete from pieza where num_pieza = 0;
 
