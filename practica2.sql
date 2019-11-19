@@ -164,16 +164,19 @@ group by num_set, num_pieza, `set`.nombre
 having count(*) > 1;
 
 -- 15
-select color.rgb, categoria.nombre categoria, tematica.nombre tematica
+select color.rgb, categoria.nombre categoria, tematica.nombre tematica, `set`.nombre
 from color join contiene on color.id=contiene.color
-natural join `set` join tematica on `set`.tematica=tematica.id
-join pieza on contiene.num_pieza=pieza.num_pieza join categoria on pieza.categoria=categoria.id
-join cantidades on `set`.num_set = cantidades.num_set
-where `set`.num_set in (select max(suma), num_set
-							from (	select sum(cantidad) suma, num_set
-								from contiene
-								group by num_set
-								order by sum(cantidad) desc) cantidades);
+join `set` on contiene.num_set=`set`.num_set join tematica on `set`.tematica=tematica.id
+join pieza on contiene.num_pieza=pieza.num_pieza join  categoria on pieza.categoria=categoria.id
+where `set`.num_set in (select num_set
+						from contiene
+						group by num_set
+						having sum(cantidad) >= all(select sum(cantidad)
+													from contiene
+													group by num_set)
+						or sum(cantidad) <= all(select sum(cantidad)
+												from contiene
+												group by num_set));
 -- Set mayor num piezas = mayor cantidad group by set
 select max(suma), num_set
 from (select sum(cantidad) suma, num_set
