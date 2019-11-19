@@ -190,8 +190,17 @@ order by sum(cantidad) asc) cantidades;
 -- Procedimientos y funciones
 
 -- 1
+delimiter &&
+create procedure SetsPorTematicaAnio(in tematica_in integer, in año_in integer)
+begin
+select `set`.nombre, sum(cantidad)
+from `set` natural join contiene 
+where tematica = tematica_in and año = año_in
+group by contiene.num_set;
+end&&
+delimiter ;
 
-
+call SetsPorTematicaAnio(4, 2003)
 -- 2
 
 delimiter &&
