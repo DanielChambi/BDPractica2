@@ -233,26 +233,22 @@ CREATE TABLE bajas(
     PRIMARY KEY(num_pieza)
 );
 
-set @sets = 0;
-
-select count(distinct num_set), count(distinct color)
-from contiene
-where num_pieza = 3
-group by(num_pieza);
-
-
-
 delimiter &&
 create trigger dlt_pieza
 before delete on pieza
 for each row
 begin
+	set @colores = 0;
+    set @sets = 0;
+
+	select count(distinct color), count(distinct num_set)
+	into @colores, @sets
+	from contiene
+	where num_pieza = OLD.num_pieza
+	group by(num_pieza);
 	
-
+    insert into bajas(`num_pieza`, `colores`, `sets`) values(OLD.num_pieza, @colores, @sets);
 end&&
-
 delimiter ;
 
-
-delete from pieza where num_pieza = 0;
 
