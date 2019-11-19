@@ -220,7 +220,18 @@ end&&
 delimiter ;
 
 -- 3
-
+delimiter &&
+create function  valorBooleano(valor varchar(1))
+returns boolean
+begin
+	declare valorBool boolean;
+    if valor= 't' then set valorBool = true;
+    else if valor = 'f' then set valorBool = false;
+    end if;
+    end if;
+    return (valorBool);
+end&&
+delimiter ;
 -- Triggers
 
 -- 1
