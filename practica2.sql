@@ -235,7 +235,25 @@ delimiter ;
 -- Triggers
 
 -- 1
+drop trigger if exists no_masdecuatro;
+delimiter $$
+create trigger no_masdecuatro
+before insert on contiene
+for each row
+begin 
+set @contador = 0;
+ 
+select count(*)
+from contiene
+where num_set= new.num_set
+group by num_set
+into @contador;
 
+if @contador>=4 then 
+	signal sqlstate  '02000' set message_text = 'Error: Se ha alcanzado el máximo número de piezas';
+end if;
+end$$
+delimiter ;
 -- 2
 CREATE TABLE bajas(
 	num_pieza INTEGER UNIQUE NOT NULL,
